@@ -2,13 +2,55 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Prévisualisation - GitHub Pages</title>
+  <title>Prévisualisation HTML</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+    }
+    header {
+      padding: 10px 20px;
+      background: #222;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    button {
+      background: orange;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-weight: bold;
+      cursor: pointer;
+      color: black;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: darkorange;
+    }
+    iframe {
+      flex: 1;
+      border: none;
+      width: 100%;
+      border-radius: 10px;
+      background: white;
+    }
+  </style>
 </head>
 <body>
-  <button onclick="goBack()">⬅ Retour à l'éditeur</button>
-  <button onclick="copyLink()">📋 Copier le lien</button>
 
-  <iframe id="preview" style="width:100%; height:80vh;"></iframe>
+  <header>
+    <button onclick="goBack()">⬅ Retour à l'éditeur</button>
+    <button onclick="copyLink()">📋 Copier le lien</button>
+    <h1>Prévisualisation</h1>
+  </header>
+
+  <iframe id="preview"></iframe>
 
   <script>
     function getParameterByName(name) {
@@ -21,27 +63,32 @@
     }
 
     function loadPreview() {
-      const codeId = getParameterByName('codeId');
-      if (!codeId) {
-        alert('Pas de code à afficher');
+      const codeEncoded = getParameterByName('code');
+      if (!codeEncoded) {
+        alert("Aucun code HTML fourni !");
         return;
       }
-      const code = localStorage.getItem('previewCode_' + codeId);
-      if (!code) {
-        alert('Code non trouvé dans localStorage');
-        return;
+      try {
+        const decoded = decodeURIComponent(escape(atob(codeEncoded)));
+        const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Preview</title></head><body>${decoded}</body></html>`;
+        const iframe = document.getElementById('preview');
+        iframe.srcdoc = fullHtml;
+      } catch(e) {
+        alert("Erreur de décodage du code !");
       }
-      const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${code}</body></html>`;
-      document.getElementById('preview').srcdoc = fullHtml;
     }
 
     function copyLink() {
-      navigator.clipboard.writeText(window.location.href)
-        .then(() => alert('Lien copié !'))
-        .catch(() => alert('Impossible de copier le lien automatiquement.'));
+      const url = window.location.href;
+      navigator.clipboard.writeText(url).then(() => {
+        alert("Lien copié dans le presse-papiers !");
+      }).catch(() => {
+        alert("Impossible de copier le lien automatiquement. Copiez-le manuellement : " + url);
+      });
     }
 
     window.onload = loadPreview;
   </script>
+
 </body>
 </html>

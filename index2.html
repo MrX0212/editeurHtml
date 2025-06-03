@@ -63,18 +63,22 @@
     }
 
     function loadPreview() {
-      const codeEncoded = getParameterByName('code');
-      if (!codeEncoded) {
-        alert("Aucun code HTML fourni !");
+      const codeId = getParameterByName('codeId');
+      if (!codeId) {
+        alert("Aucun code fourni !");
         return;
       }
       try {
-        const decoded = decodeURIComponent(escape(atob(codeEncoded)));
-        const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Preview</title></head><body>${decoded}</body></html>`;
+        const code = localStorage.getItem('previewCode_' + codeId);
+        if (!code) {
+          alert("Le code n'a pas été trouvé dans le stockage local.");
+          return;
+        }
+        const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Preview</title></head><body>${code}</body></html>`;
         const iframe = document.getElementById('preview');
         iframe.srcdoc = fullHtml;
-      } catch(e) {
-        alert("Erreur de décodage du code !");
+      } catch (e) {
+        alert("Erreur lors du chargement du code.");
       }
     }
 
@@ -83,7 +87,7 @@
       navigator.clipboard.writeText(url).then(() => {
         alert("Lien copié dans le presse-papiers !");
       }).catch(() => {
-        alert("Impossible de copier le lien automatiquement. Copiez-le manuellement : " + url);
+        alert("Impossible de copier automatiquement, copie manuelle : " + url);
       });
     }
 
